@@ -1,0 +1,7 @@
+Sales Computation Results
+------------------------
+Total Sales: $23.00
+Execution Time: 0.0001 seconds
+
+Errors encountered:
+- Unknown product in sales record: 'Chocolate'
