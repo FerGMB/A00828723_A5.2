@@ -1,7 +1,17 @@
+#!/usr/bin/env python3
+"""
+computeSales.py
+
+Compute total sales from a price catalogue and a sales record.
+Handles the given JSON formats directly.
+Outputs results to console and SalesResults.txt.
+Includes execution time and error handling.
+PEP8-compliant.
+"""
+
 import json
 import sys
 import time
-from pathlib import Path
 
 
 def load_json(file_path):
@@ -20,25 +30,43 @@ def load_json(file_path):
     return None
 
 
+def build_price_catalogue_dict(catalogue_json):
+    """
+    Convert a list of product objects into a dictionary:
+    { "Product Title": price }
+    """
+    price_dict = {}
+    # If catalogue is a single object, wrap it in a list
+    if isinstance(catalogue_json, dict):
+        catalogue_json = [catalogue_json]
+
+    for item in catalogue_json:
+        title = item.get("title")
+        price = item.get("price")
+        if title is not None and price is not None:
+            price_dict[title] = price
+    return price_dict
+
+
 def compute_total_sales(price_catalogue, sales_record):
     """
-    Compute the total cost of all sales.
-    Returns total cost and a list of errors.
+    Compute total cost of all sales based on price catalogue.
+    Handles errors and unknown products.
     """
     total_cost = 0
     errors = []
 
-    # Loop through all sales
     for sale in sales_record:
-        # Each sale may have multiple items
-        for item, quantity in sale.items():
-            if item in price_catalogue:
-                try:
-                    total_cost += price_catalogue[item] * quantity
-                except TypeError:
-                    errors.append(f"Invalid quantity for item '{item}': {quantity}")
-            else:
-                errors.append(f"Unknown product in sales record: '{item}'")
+        product = sale.get("Product")
+        quantity = sale.get("Quantity")
+
+        if product in price_catalogue:
+            try:
+                total_cost += price_catalogue[product] * quantity
+            except TypeError:
+                errors.append(f"Invalid quantity for product '{product}': {quantity}")
+        else:
+            errors.append(f"Unknown product in sales record: '{product}'")
 
     return total_cost, errors
 
@@ -67,7 +95,6 @@ def main():
     """
     start_time = time.time()
 
-    # Check command-line arguments
     if len(sys.argv) < 3:
         print("Usage: python computeSales.py priceCatalogue.json salesRecord.json")
         sys.exit(1)
@@ -76,17 +103,20 @@ def main():
     sales_file = sys.argv[2]
 
     # Load JSON files
-    price_catalogue = load_json(price_file)
+    catalogue_json = load_json(price_file)
     sales_record = load_json(sales_file)
 
-    if price_catalogue is None or sales_record is None:
+    if catalogue_json is None or sales_record is None:
         print("Cannot continue due to previous errors.")
         sys.exit(1)
+
+    # Build price dictionary
+    price_catalogue = build_price_catalogue_dict(catalogue_json)
 
     # Compute total sales
     total_cost, errors = compute_total_sales(price_catalogue, sales_record)
 
-    # Compute elapsed time
+    # Measure elapsed time
     elapsed_time = time.time() - start_time
 
     # Print results to console

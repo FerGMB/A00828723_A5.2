@@ -1,7 +1,8 @@
 Sales Computation Results
 ------------------------
-Total Sales: $23.00
-Execution Time: 0.0001 seconds
+Total Sales: $165235.37
+Execution Time: 0.0002 seconds
 
 Errors encountered:
-- Unknown product in sales record: 'Chocolate'
+- Unknown product in sales record: 'Elotes'
+- Unknown product in sales record: 'Frijoles'
